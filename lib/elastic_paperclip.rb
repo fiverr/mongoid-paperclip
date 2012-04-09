@@ -12,11 +12,7 @@ end
 module Paperclip
   class << self
     def logger
-      if Mongoid::Config.logger.present?
-        Mongoid::Config.logger
-      else
-        Rails.logger
-      end
+      Rails.logger
     end
   end
 end
@@ -53,7 +49,7 @@ end
 #  field :avatar_file_size,    :type => Integer
 #  field :avatar_updated_at,   :type => DateTime
 #
-module Mongoid
+module ElasticRecord
   module Paperclip
 
     ##
@@ -65,11 +61,11 @@ module Mongoid
     module ClassMethods
 
       ##
-      # Adds Mongoid::Paperclip's "#has_mongoid_attached_file" class method to the model
+      # Adds ElasticRecord::Paperclip's "#has_elastic_attached_file" class method to the model
       # which includes Paperclip and Paperclip::Glue in to the model. Additionally
       # it'll also add the required fields for Paperclip since MongoDB is schemaless and doesn't
       # have migrations.
-      def has_mongoid_attached_file(field, options = {})
+      def has_elastic_attached_file(field, options = {})
 
         ##
         # Include Paperclip and Paperclip::Glue for compatibility
@@ -85,17 +81,15 @@ module Mongoid
 
         ##
         # Define the necessary collection fields in Mongoid for Paperclip
-        field(:"#{field}_file_name",    :type => String)
-        field(:"#{field}_content_type", :type => String)
-        field(:"#{field}_file_size",    :type => Integer)
-        field(:"#{field}_updated_at",   :type => DateTime)
+        allowed_fields :"#{field}_file_name", :"#{field}_content_type",
+            :"#{field}_file_size", :"#{field}_updated_at"
       end
 
       ##
       # This method is deprecated
       def has_attached_file(field, options = {})
         raise "Mongoid::Paperclip#has_attached_file is deprecated, " +
-              "Use 'has_mongoid_attached_file' instead"
+              "Use 'has_elastic_attached_file' instead"
       end
     end
 
